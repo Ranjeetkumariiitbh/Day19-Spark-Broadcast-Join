@@ -1,0 +1,84 @@
+== Physical Plan ==
+* Project (15)
++- * SortMergeJoin Inner (14)
+   :- * Sort (9)
+   :  +- Exchange (8)
+   :     +- * Filter (7)
+   :        +- * Project (6)
+   :           +- * Project (5)
+   :              +- * Project (4)
+   :                 +- * Project (3)
+   :                    +- * Project (2)
+   :                       +- * Range (1)
+   +- * Sort (13)
+      +- Exchange (12)
+         +- * Filter (11)
+            +- Scan csv  (10)
+
+
+(1) Range [codegen id : 1]
+Output [1]: [id#0L]
+Arguments: Range (1, 5000001, step=1, splits=Some(16))
+
+(2) Project [codegen id : 1]
+Output [2]: [id#0L AS txn_id#1L, cast(((rand(1) * 20.0) + 1.0) as int) AS branch_id#2]
+Input [1]: [id#0L]
+
+(3) Project [codegen id : 1]
+Output [3]: [txn_id#1L, branch_id#2, cast(((rand(2) * 500000.0) + 1.0) as int) AS customer_id#3]
+Input [2]: [txn_id#1L, branch_id#2]
+
+(4) Project [codegen id : 1]
+Output [4]: [txn_id#1L, branch_id#2, customer_id#3, round(((rand(3) * 5000.0) + 10.0), 2) AS amount#4]
+Input [3]: [txn_id#1L, branch_id#2, customer_id#3]
+
+(5) Project [codegen id : 1]
+Output [5]: [txn_id#1L, branch_id#2, customer_id#3, amount#4, CASE WHEN (rand(4) < 0.5) THEN DEBIT WHEN (rand(5) < 0.8) THEN CREDIT ELSE TRANSFER END AS txn_type#5]
+Input [4]: [txn_id#1L, branch_id#2, customer_id#3, amount#4]
+
+(6) Project [codegen id : 1]
+Output [6]: [txn_id#1L, branch_id#2, customer_id#3, amount#4, txn_type#5, date_add(2025-01-01, cast((rand(6) * 365.0) as int)) AS txn_date#6]
+Input [5]: [txn_id#1L, branch_id#2, customer_id#3, amount#4, txn_type#5]
+
+(7) Filter [codegen id : 1]
+Input [6]: [txn_id#1L, branch_id#2, customer_id#3, amount#4, txn_type#5, txn_date#6]
+Condition : isnotnull(branch_id#2)
+
+(8) Exchange
+Input [6]: [txn_id#1L, branch_id#2, customer_id#3, amount#4, txn_type#5, txn_date#6]
+Arguments: hashpartitioning(branch_id#2, 8), ENSURE_REQUIREMENTS, [plan_id=256]
+
+(9) Sort [codegen id : 2]
+Input [6]: [txn_id#1L, branch_id#2, customer_id#3, amount#4, txn_type#5, txn_date#6]
+Arguments: [branch_id#2 ASC NULLS FIRST], false, 0
+
+(10) Scan csv 
+Output [4]: [branch_id#24, branch_name#25, city#26, region#27]
+Batched: false
+Location: InMemoryFileIndex [file:/mnt/c/Users/uk620/Downloads/Day19-Spark-Broadcast-Join/data/branches.csv]
+PushedFilters: [IsNotNull(branch_id)]
+ReadSchema: struct<branch_id:int,branch_name:string,city:string,region:string>
+
+(11) Filter [codegen id : 3]
+Input [4]: [branch_id#24, branch_name#25, city#26, region#27]
+Condition : isnotnull(branch_id#24)
+
+(12) Exchange
+Input [4]: [branch_id#24, branch_name#25, city#26, region#27]
+Arguments: hashpartitioning(branch_id#24, 8), ENSURE_REQUIREMENTS, [plan_id=264]
+
+(13) Sort [codegen id : 4]
+Input [4]: [branch_id#24, branch_name#25, city#26, region#27]
+Arguments: [branch_id#24 ASC NULLS FIRST], false, 0
+
+(14) SortMergeJoin [codegen id : 5]
+Left keys [1]: [branch_id#2]
+Right keys [1]: [branch_id#24]
+Join type: Inner
+Join condition: None
+
+(15) Project [codegen id : 5]
+Output [9]: [branch_id#2, txn_id#1L, customer_id#3, amount#4, txn_type#5, txn_date#6, branch_name#25, city#26, region#27]
+Input [10]: [txn_id#1L, branch_id#2, customer_id#3, amount#4, txn_type#5, txn_date#6, branch_id#24, branch_name#25, city#26, region#27]
+
+

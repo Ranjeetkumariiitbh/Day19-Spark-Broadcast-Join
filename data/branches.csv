@@ -1,0 +1,21 @@
+branch_id,branch_name,city,region
+1,Hyderabad Main,Hyderabad,South
+2,Secunderabad,Hyderabad,South
+3,Warangal,Warangal,South
+4,Bengaluru Central,Bengaluru,South
+5,Chennai Anna Nagar,Chennai,South
+6,Kochi,Kochi,South
+7,Mumbai Fort,Mumbai,West
+8,Pune Camp,Pune,West
+9,Ahmedabad,Ahmedabad,West
+10,Surat,Surat,West
+11,Delhi Connaught,Delhi,North
+12,Gurugram,Gurugram,North
+13,Jaipur,Jaipur,North
+14,Lucknow,Lucknow,North
+15,Chandigarh,Chandigarh,North
+16,Kolkata Park Street,Kolkata,East
+17,Bhubaneswar,Bhubaneswar,East
+18,Patna,Patna,East
+19,Guwahati,Guwahati,East
+20,Ranchi,Ranchi,East
